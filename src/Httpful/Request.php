@@ -171,6 +171,9 @@ class Request
         }
 
         $info = curl_getinfo($this->_ch);
+
+        $result = preg_replace('/HTTP\/1.[01] 100 Continue\s*/', '', $result);
+
         $response = explode("\r\n\r\n", $result, 2 + $info['redirect_count']);
 
         $body = array_pop($response);
