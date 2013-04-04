@@ -58,6 +58,9 @@ class Request
     public $_ch,
            $_debug;
 
+    // Optional callback to log raw unparsed responses, signature (Request $req, string $response)
+    public static $raw_response_logger = null;
+
     // Template Request object
     private static $_template;
 
@@ -200,6 +203,13 @@ class Request
         }
 
         $info = curl_getinfo($this->_ch);
+
+        if (is_callable(static::$raw_response_logger)) {
+            call_user_func(static::$raw_response_logger, $this, $result);
+        }
+
+        $result = preg_replace('/HTTP\/1.[01] 100 Continue\s*/', '', $result);
+
         $response = explode("\r\n\r\n", $result, 2 + $info['redirect_count']);
 
         $body = array_pop($response);
